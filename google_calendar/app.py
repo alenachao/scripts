@@ -1,6 +1,5 @@
-import datetime
 import os.path
-
+import csv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -10,10 +9,9 @@ from googleapiclient.errors import HttpError
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
-
-def main():
-  """Shows basic usage of the Google Calendar API.
-  Prints the start and name of the next 10 events on the user's calendar.
+def authentication():
+  """
+  Completes authorization flow and builds service
   """
   creds = None
   # The file token.json stores the user's access and refresh tokens, and is
@@ -35,42 +33,55 @@ def main():
       token.write(creds.to_json())
 
   try:
-    service = build("calendar", "v3", credentials=creds)
+    return build("calendar", "v3", credentials=creds)
+  except HttpError as error:
+    raise f"An error occurred: {error}"
 
-    # Call the Calendar API
-    event = {
-        'summary': 'Google I/O 2015',
-        'location': '800 Howard St., San Francisco, CA 94103',
-        'description': 'A chance to hear more about Google\'s developer products.',
+def add_event(event_details, service):
+  """
+  Add event to calendar.
+  """
+  event = {
+        'summary': event_details['summary'],
+        'location': event_details.get('location', ''),
+        'description': event_details.get('description', ''),
         'start': {
-            'dateTime': '2024-01-10T09:00:00-07:00',
-            'timeZone': 'America/Los_Angeles',
+            'dateTime': event_details['start.dateTime'],
+            'timeZone': event_details.get('start.timeZone', 'UTC'),
         },
         'end': {
-            'dateTime': '2024-01-10T17:00:00-07:00',
-            'timeZone': 'America/Los_Angeles',
+            'dateTime': event_details['end.dateTime'],
+            'timeZone': event_details.get('end.timeZone', 'UTC'),
         },
-        'recurrence': [
-            'RRULE:FREQ=DAILY;COUNT=2'
-        ],
-        'attendees': [
-            {'email': 'lpage@example.com'},
-            {'email': 'sbrin@example.com'},
-        ],
-        'reminders': {
-            'useDefault': False,
-            'overrides': [
-            {'method': 'email', 'minutes': 24 * 60},
-            {'method': 'popup', 'minutes': 10},
-            ],
-        },
-        }
+        'recurrence': event_details.get('recurrence', []),
+        'attendees': event_details.get('attendees', []),
+    }
     
-    event = service.events().insert(calendarId='primary', body=event).execute()
-    print("success!")
+  service.events().insert(calendarId='primary', body=event).execute()
+    
 
-  except HttpError as error:
-    print(f"An error occurred: {error}")
+
+def main():
+  """
+  Entry point.
+  """
+  service = authentication()
+
+  # Read events from CSV file
+  with open('events.csv', mode='r') as file:
+      reader = csv.DictReader(file)
+      for row in reader:
+          # process attendees list:
+          if row.get("attendees"):
+            row["attendees"] = row["attendees"].split(",")
+
+          # process recrurrence list:
+          if row.get("recurrence"):
+            row["recurrence"] = row["recurrence"].split(",")
+
+          add_event(row, service)
+
+  print("success!")
 
 
 if __name__ == "__main__":
