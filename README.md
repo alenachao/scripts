@@ -23,6 +23,9 @@ pip install -r requirements.txt
 4. Set up Client Credentials:
   - Go back > Credentials > Click Create Credentials > Select OAuth Client ID > Select web application > Make redirect uri http://localhost:3000
   - Download the credentials JSON file and put it in the same directory as `app.py`, naming it `credentials.json`
+<br>
+Woohoo! Basic set up complete 🎉
+
 ## Write Your CSV File
 Each row will be an event instance and each column will be an attribute of the event. Supported attributes:
 | Attribute | Required/Default Value | Description | Type | Example |
@@ -37,19 +40,19 @@ Each row will be an event instance and each column will be an attribute of the e
 | attendees | Nothing | List of attendees | Comma separated list | lpage@example.com,sbrin@example.com |
 | recurrence | Nothing | List of recurance rules | Comma separated list | RRULE:FREQ=DAILY;COUNT=2 |
 
-You spreadsheet should look something like this:
+Your spreadsheet should look something like this:
 | summary	| location | description	| start.dateTime |	end.dateTime |	start.timeZone |	end.timeZone |	attendees |	recurrence |
 |---|---|---|---|---|---|---|---|---|
 | Google I/O 2015	| 800 Howard St., San Francisco, CA 94103	| A chance to hear more about Google\'s developer products.	| 2024-01-10T09:00:00-07:00	 | 2024-01-10T17:00:00-07:00 |	America/Los_Angeles |	America/Los_Angeles |	lpage@example.com,sbrin@example.com	 | RRULE:FREQ=DAILY;COUNT=2
 
-Put the csv file in the same directory as `app.py` and name it `events.py`
+You are free to omit any nonrequired columns. Put the csv file in the same directory as `app.py` and name it `events.py`
 
 ## Run it
 ```
 cd google_calendar
 python3 app.py
 ```
-Note you will only have to login the first time due to the token.json file, delete that file it you wanna relogin :)
+Note you will only have to login the first time due to the token.json file!
 
 ## Future Ideas 🔮:
 - Spotify doesn't notify you when you get a new follower. Maybe something that emails you or notifies you the next time you open spotify if your follower count has changed.
