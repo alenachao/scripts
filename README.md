@@ -45,7 +45,7 @@ Your spreadsheet should look something like this:
 |---|---|---|---|---|---|---|---|---|
 | Google I/O 2015	| 800 Howard St., San Francisco, CA 94103	| A chance to hear more about Google\'s developer products.	| 2024-01-10T09:00:00-07:00	 | 2024-01-10T17:00:00-07:00 |	America/Los_Angeles |	America/Los_Angeles |	lpage@example.com,sbrin@example.com	 | RRULE:FREQ=DAILY;COUNT=2
 
-You are free to omit any nonrequired columns. Put the csv file in the same directory as `app.py` and name it `events.py`
+You are free to omit any nonrequired columns. Put the csv file in the same directory as `app.py` and name it `events.csv`
 
 ## Run it
 ```
