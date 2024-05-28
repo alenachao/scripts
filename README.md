@@ -9,7 +9,7 @@ git clone git@github.com:alenachao/scripts.git
 - Google Calendar Upload: Given a CSV file of google calendar events, add them all to the user's Google Calendar.
 
 ## In Progress 💭:
-- Spotify Follower: Ever wonder who's not following you back? A script that tells you who's not following you back on Spotify
+- Spotify Follower: Ever wonder who's not following you back? A script that tells you who's not following you back on Spotify (wip because not feasible with spotify's current api)
 
 ## Future Ideas 🔮:
 - Spotify doesn't notify you when you get a new follower. Maybe something that emails you or notifies you the next time you open spotify if your follower count has changed.
