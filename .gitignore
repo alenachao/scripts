@@ -1,3 +1,5 @@
 google_calendar/credentials.json
 google_calendar/token.json
 google_calendar/events.csv
+
+spotify/.env
