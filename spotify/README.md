@@ -1,1 +1,1 @@
-current not supported by spotify's api
+currently not supported by spotify's api
