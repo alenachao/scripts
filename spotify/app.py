@@ -7,6 +7,7 @@ import argparse
 from flask import Flask, redirect, request, url_for, jsonify
 import urllib
 import webbrowser
+import numpy as np
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(64)
@@ -137,7 +138,7 @@ def create_playlist():
     # add to playlist
     url = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
     headers = {
-        'Authorization': f'Bearer ' + access_token,
+        'Authorization': 'Bearer ' + access_token,
         'Content-Type': 'application/json'
     }
     data = {
@@ -156,7 +157,7 @@ def get_tracks():
     '''
     https://developer.spotify.com/documentation/web-api/reference/get-users-top-artists-and-tracks
     '''
-    url = 'https://api.spotify.com/v1/me/top/tracks?limit=2'
+    url = 'https://api.spotify.com/v1/me/top/tracks?limit=20'
     headers = {
         'Authorization': 'Bearer ' + access_token
     }
@@ -171,16 +172,32 @@ def get_tracks():
 # get recommendations
 def get_recs(tracks):
     '''
+    https://developer.spotify.com/documentation/web-api/reference/get-several-audio-features
     https://developer.spotify.com/documentation/web-api/reference/get-recommendations
     '''
-    print("DEBUG: " + str(tracks))
-    seed_tracks = ','.join([track['id'] for track in tracks])
-    url = f'https://api.spotify.com/v1/recommendations?market={language_to_market[language]}&seed_genres={language_to_genre[language]}&seed_tracks={seed_tracks}&target_popularity=80'
+    # anaylze tracks
+    # we want acousticness, danceability, energy, instrumentalness, mode, valence
+    url = 'https://api.spotify.com/v1/audio-features?ids=' + ','.join([track['id'] for track in tracks])
     headers = {
         'Authorization': 'Bearer ' + access_token
     }
-
     response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    audio_features = json.loads(response.content)['audio_features']
+
+    url = f'https://api.spotify.com/v1/recommendations'
+    params = {
+        'market': language_to_market[language],
+        'seed_genres': language_to_genre[language],
+        'target_popularity': 80,
+        'target_acousticness': np.mean([track["acousticness"] for track in audio_features]),
+        'target_danceability': np.mean([track["danceability"] for track in audio_features]),
+        'target_energy': np.mean([track["energy"] for track in audio_features]),
+        'target_instrumentalness': np.mean([track["instrumentalness"] for track in audio_features]),
+        'target_valence': np.mean([track["valence"] for track in audio_features]),
+    }
+
+    response = requests.get(url, headers=headers, params=params)
     response.raise_for_status()
     
     recommendations = json.loads(response.content)['tracks']
