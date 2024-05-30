@@ -6,6 +6,7 @@ import json
 import argparse
 from flask import Flask, redirect, request, url_for, jsonify
 import urllib
+import webbrowser
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(64)
@@ -15,6 +16,42 @@ client_id = os.environ['CLIENT_ID']
 client_secret = os.environ['CLIENT_SECRET']
 redirect_uri = 'http://localhost:8888/callback'
 access_token = None
+
+language_to_genre = {
+    "portuguese":"brazil", 
+    "cantonese":"cantopop", 
+    "french":"french", 
+    "german":"german", 
+    "hindi":"indian", 
+    "persian":"iranian", 
+    "japanese":"j-pop",
+    "korean":"k-pop",
+    "malay":"malay",
+    "mandarin":"mandopop", 
+    "tagalog":"philippines-opm", 
+    "spanish":"spanish", 
+    "swedish":"swedish", 
+    "turkish":"turkish",
+    "english":"pop"
+}
+
+language_to_market = {
+    "portuguese": "BR",  # Brazil
+    "cantonese": "HK",   # Hong Kong
+    "french": "FR",      # France
+    "german": "DE",      # Germany
+    "hindi": "IN",       # India
+    "persian": "US",     # Iran not available
+    "japanese": "JP",    # Japan
+    "korean": "KR",      # South Korea
+    "malay": "MY",       # Malaysia
+    "mandarin": "US",    # China notavailable
+    "tagalog": "PH",     # Philippines
+    "spanish": "ES",     # Spain
+    "swedish": "SE",     # Sweden
+    "turkish": "TR",     # Turkey
+    "english": "US"      # USA
+}
 
 # user authentication
 @app.route('/')
@@ -83,7 +120,7 @@ def create_playlist():
     # create playlist
     url = f'https://api.spotify.com/v1/users/{user_id}/playlists'
     data = {
-        'name': f'meep ({country} ver.)',
+        'name': f'meep ({language} ver.)',
         'description': 'moop',
         'public': False
     }
@@ -119,7 +156,7 @@ def get_tracks():
     '''
     https://developer.spotify.com/documentation/web-api/reference/get-users-top-artists-and-tracks
     '''
-    url = 'https://api.spotify.com/v1/me/top/tracks?limit=5'
+    url = 'https://api.spotify.com/v1/me/top/tracks?limit=2'
     headers = {
         'Authorization': 'Bearer ' + access_token
     }
@@ -137,9 +174,8 @@ def get_recs(tracks):
     https://developer.spotify.com/documentation/web-api/reference/get-recommendations
     '''
     print("DEBUG: " + str(tracks))
-    market = str.upper(country)
     seed_tracks = ','.join([track['id'] for track in tracks])
-    url = f'https://api.spotify.com/v1/recommendations?market={market}&seed_tracks={seed_tracks}&target_popularity=80'
+    url = f'https://api.spotify.com/v1/recommendations?market={language_to_market[language]}&seed_genres={language_to_genre[language]}&seed_tracks={seed_tracks}&target_popularity=80'
     headers = {
         'Authorization': 'Bearer ' + access_token
     }
@@ -169,9 +205,11 @@ def get_id():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Making Spotify playlist based on your language of choice")
-    parser.add_argument("country", type=str, help="ISO 3166-1 alpha-2 country code (https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)")
+    parser.add_argument("language", type=str, help="supported languages: Cantonese, English, French, German, Hindi, Japanese, Korean, Malay, Mandarin, Persian, Portuguese, Spanish, Swedish, Tagalog, Turkish")
 
     args = parser.parse_args()
-    country = str.upper(args.country)
+    language = str.lower(args.language)
+
+    webbrowser.open('http://127.0.0.1:8888')
 
     app.run(port=8888)
