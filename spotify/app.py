@@ -189,7 +189,7 @@ def get_recs(tracks):
     params = {
         'market': language_to_market[language],
         'seed_genres': language_to_genre[language],
-        'target_popularity': 80,
+        'min_popularity': 80,
         'target_acousticness': np.mean([track["acousticness"] for track in audio_features]),
         'target_danceability': np.mean([track["danceability"] for track in audio_features]),
         'target_energy': np.mean([track["energy"] for track in audio_features]),
